@@ -9,6 +9,8 @@ services:
       POSTGRES_USER: order-service
       POSTGRES_PASSWORD: password
       POSTGRES_DB: order_db 
+    ports:
+      - 5432:5432
   pgadmin:
     image: docker.io/dpage/pgadmin4:latest
     restart: always
