@@ -8,3 +8,9 @@ idea/
 .idea/
 
 .gitignore
+backend/.gitignore
+backend/.gitattributes
+**/backend/**/.gitignore
+**/backend/**/.gitattributes
+**/.gitignore
+**/.gitattributes
