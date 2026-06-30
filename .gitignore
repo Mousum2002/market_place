@@ -1,2 +1,20 @@
 /backend/lazygit
 /backend/lazygit.tar.gz
+**/.gitignore
+**/.gitattributes
+backend/.gitignore
+backend/.gitattributes
+**/backend/**/.gitignore
+**/backend/**/.gitattributes
+HELP.md
+target/
+.mvn/wrapper/**
+!**/src/main/**/target/
+!**/src/test/**/target/
+**/.idea/
+**/.neoconf.json
+# Eclipse IDE files
+**/.classpath
+**/.factorypath
+**/.project
+**/.settings/
