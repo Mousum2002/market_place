@@ -15,9 +15,13 @@
     <packaging>jar</packaging>
 
     <name>Shared Proto File</name>
-    <description>Shared dependency for gRPC calls and proto compiler</description>
-
-    <dependencies>
+  <description>Shared dependency for gRPC calls and proto compiler</description>
+  <properties>
+      <grpc.version>1.73.0</grpc.version>
+        <protobuf.version>4.30.2</protobuf.version>
+        <protobuf.maven.plugin.version>0.6.1</protobuf.maven.plugin.version>
+  </properties>
+     <dependencies>
         <dependency>
             <groupId>com.google.protobuf</groupId>
             <artifactId>protobuf-java</artifactId>
@@ -56,7 +60,6 @@
             <plugin>
                 <groupId>org.xolstice.maven.plugins</groupId>
                 <artifactId>protobuf-maven-plugin</artifactId>
-                <version>0.6.1</version>
                 <configuration>
                     <protocArtifact>
                         com.google.protobuf:protoc:${protobuf.version}:exe:${os.detected.classifier}
