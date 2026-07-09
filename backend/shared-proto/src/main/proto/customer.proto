@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.marketplace.proto.customer";
+option java_outer_classname = "CustomerAuthProto";
+
+service CustomerService {
+  rpc FindCustomerByUsername (CustomerByUsernameRequest) returns (CustomerAuthResponse);
+}
+
+message CustomerByUsernameRequest {
+  string username = 1;
+}
+
+message CustomerAuthResponse {
+  bool exists = 1;
+  int64 userId = 2;
+  string username = 3;
+  string passwordHash = 4;
+}
