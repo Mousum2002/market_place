@@ -32,7 +32,7 @@
         <loki4j.version>1.6.0</loki4j.version>
         <rest-assured.version>5.5.7</rest-assured.version>
         <confluent.version>7.6.0</confluent.version>
-        <avro.version>1.11.3</avro.version>
+        <avro.version>1.11.4</avro.version>
         <datasource-micrometer.version>1.4.0</datasource-micrometer.version>
         <lombok.version>1.18.36</lombok.version>
         <grpc.version>1.73.0</grpc.version>
