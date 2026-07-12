@@ -2,6 +2,8 @@ package com.marketplace.product.servive;
 
 import java.util.List;
 
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 
 import com.marketplace.product.dto.ProductRequest;
@@ -22,6 +24,7 @@ public class ProductService {
   private final ProductRepo repo;
   private final DtoMapper mapper;
 
+  @CacheEvict(value = "products", allEntries = true)
   public ProductResponse createProduct(ProductRequest product) {
     Product prod = repo.insert(mapper.dtoToProduct(product));
     log.info("Product created with id: {}", prod.getId());
@@ -34,10 +37,12 @@ public class ProductService {
     return mapper.productToResponse(prod);
   }
 
+  @Cacheable("products")
   public List<ProductResponse> getAll() {
     return repo.findAll().stream().map(mapper::productToResponse).toList();
   }
 
+  @CacheEvict(value = "products", allEntries = true)
   public void deleteById(String id) {
     repo.deleteById(id);
   }
