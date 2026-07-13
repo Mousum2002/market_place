@@ -30,7 +30,7 @@ public class SecurityConfig {
   SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
     return http.csrf(csrf -> csrf.disable())
         .authorizeHttpRequests(request -> request
-            .requestMatchers("/api/auth/login", "/api/auth/resgister", "/api/product/all").permitAll()
+            .requestMatchers("/api/auth/login", "/api/auth/register", "/api/product/all").permitAll()
             .anyRequest().authenticated())
         .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
         .oauth2ResourceServer(oauth2 -> oauth2.jwt(jwt -> jwt.decoder(jwtDecoder())))

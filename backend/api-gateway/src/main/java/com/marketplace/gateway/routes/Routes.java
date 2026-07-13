@@ -31,6 +31,6 @@ public class Routes {
   public RouterFunction<ServerResponse> authServiceRoute() {
     return GatewayRouterFunctions.route("auth_service")
         .route(RequestPredicates.path("/api/auth/**"), HandlerFunctions.http())
-        .before(BeforeFilterFunctions.uri("http://localhost:8082")).build();
+        .before(BeforeFilterFunctions.uri("http://localhost:8282")).build();
   }
 }
