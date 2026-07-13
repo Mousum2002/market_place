@@ -6,6 +6,7 @@ import com.marketplace.customer.dto.CustomerRequest;
 import com.marketplace.customer.dto.CustomerResponse;
 import com.marketplace.customer.mapper.CustomerMapper;
 import com.marketplace.customer.repo.CustomerRepo;
+import com.marketplace.proto.customer.CreateCustomerResponse;
 
 import lombok.RequiredArgsConstructor;
 
@@ -16,8 +17,9 @@ public class CustomerService {
   private final CustomerRepo repo;
   private final CustomerMapper mapper;
 
-  public void register(CustomerRequest request) {
+  public CreateCustomerResponse register(CustomerRequest request) {
     repo.saveAndFlush(mapper.toCustomer(request));
+    return CreateCustomerResponse.newBuilder().setMessage("Customer Created Succesfully").build();
   }
 
   public CustomerResponse findByusername(String username) {
