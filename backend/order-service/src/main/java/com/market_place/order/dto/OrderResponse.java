@@ -1,6 +1,9 @@
 package com.market_place.order.dto;
 
+import java.util.List;
 import java.util.UUID;
 
-public record OrderResponse(UUID id) {
+import com.market_place.order.model.OrderProduct;
+
+public record OrderResponse(UUID id, List<OrderProduct> products) {
 }

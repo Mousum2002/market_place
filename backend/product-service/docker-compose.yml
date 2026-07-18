@@ -1,7 +1,6 @@
-version: '4'
 services:
   mongodb:
-    image: docker.io/library/mongo:7.0.5
+    image: mongo:7.0.5
     container_name: mongodb
     ports:
       - "27017:27017"
@@ -11,11 +10,16 @@ services:
       MONGO_INITDB_ROOT_DATABASE: product-service
     volumes:
       - mongo_data:/data/db
+
+  redis:
+    image: redis:8.8
+    container_name: redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: redis-server --appendonly yes
+
 volumes:
   mongo_data:
-
-services:
-   redis:
-     image: docker.io/library/redis:8.8
-     ports: 
-       - "6379:6379"
+  redis_data:

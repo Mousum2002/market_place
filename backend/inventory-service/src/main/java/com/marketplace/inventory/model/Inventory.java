@@ -1,5 +1,10 @@
 package com.marketplace.inventory.model;
 
+import java.util.UUID;
+
+import org.hibernate.annotations.DynamicInsert;
+import org.hibernate.annotations.Generated;
+import org.hibernate.generator.EventType;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -9,9 +14,6 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.DynamicInsert;
-
-import java.util.UUID;
 
 @Entity
 @Table(name = "inventory")
@@ -21,9 +23,14 @@ import java.util.UUID;
 @NoArgsConstructor
 @DynamicInsert
 public class Inventory {
-    @Id
-    private UUID id;
-    @Column(name = "product_id")
-    private UUID productId;
-    private Integer quantity;
+  @Id
+  @Generated(event = EventType.INSERT)
+  @Column(name = "id", insertable = false, updatable = false, columnDefinition = "uuid")
+  private UUID id;
+
+  @Column(name = "product_id", nullable = false, unique = true, columnDefinition = "uuid")
+  private UUID productId;
+
+  @Column(name = "quantity", nullable = false)
+  private Integer quantity;
 }

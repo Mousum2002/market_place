@@ -1,8 +1,9 @@
 package com.market_place.order.dto;
 
-import java.math.BigDecimal;
-import java.util.UUID;
+import java.util.List;
 
-public record OrderRequest(UUID productId, Integer quantity, UUID customerId, BigDecimal totalPrice) {
+import com.market_place.order.model.OrderProduct;
+
+public record OrderRequest(List<OrderProduct> products) {
 
 }
