@@ -21,6 +21,9 @@ import com.market_place.proto.inventory.ProductAvailability;
 import com.market_place.proto.inventory.ProductQuantity;
 import com.market_place.proto.inventory.StockCheckRequest;
 import com.market_place.proto.inventory.StockCheckResponse;
+import com.marketplace.proto.product.ProductPriceRequest;
+import com.marketplace.proto.product.ProductPriceResponse;
+import com.marketplace.proto.product.ProductServiceGrpc.ProductServiceBlockingStub;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,8 +35,9 @@ public class OrderService {
 
   private final OrderMapper mapper;
   private final OrderRepo repo;
+  private final InventoryServiceBlockingStub inventoryStub;
 
-  private final InventoryServiceBlockingStub stub;
+  private final ProductServiceBlockingStub productStub;
 
   public OrderResponse placeOrder(UUID customerID, OrderRequest request) {
 
@@ -44,28 +48,36 @@ public class OrderService {
 
     StockCheckRequest gRequest = builder.build();
 
-    StockCheckResponse gResponse = stub.checkAvailability(gRequest);
+    StockCheckResponse gResponse = inventoryStub.checkAvailability(gRequest);
 
     Map<String, Boolean> availabilityMap = gResponse.getResultsList().stream()
         .collect(Collectors.toMap(ProductAvailability::getProductId, ProductAvailability::getAvailable));
 
     List<OrderProduct> savableProducts = new ArrayList<>();
     List<OrderProduct> responseProducts = new ArrayList<>();
+    ProductPriceResponse priceResponse = productStub.getPrices(ProductPriceRequest.newBuilder()
+        .addAllProductIds(request.products().stream().map(OrderProduct::getProductId).map(UUID::toString).toList())
+        .build());
+    Map<UUID, BigDecimal> priceMap = priceResponse.getItemsList().stream()
+        .collect(Collectors.toMap(
+            item -> UUID.fromString(item.getProductId()),
+            item -> BigDecimal.valueOf(item.getPrice())));
     BigDecimal totalPrice = BigDecimal.ZERO;
-    request.products().stream().forEach(product -> {
-      boolean available = availabilityMap.getOrDefault(product.getProductId(), false);
+
+    for (OrderProduct product : request.products()) {
+      boolean available = availabilityMap.getOrDefault(product.getProductId().toString(), false);
 
       if (available) {
-        OrderProduct orderProduct = new OrderProduct(product.getProductId(), product.getQuantity(), product.getPrice());
-        totalPrice.add(product.getPrice());
+        OrderProduct orderProduct = new OrderProduct(product.getProductId(), product.getQuantity(),
+            priceMap.get(product.getProductId()));
+        totalPrice = totalPrice.add(orderProduct.getPrice().multiply(BigDecimal.valueOf(orderProduct.getQuantity())));
         savableProducts.add(orderProduct);
         responseProducts.add(orderProduct);
       } else {
-        // The price is gonne be fetched from the Pproduct service via grpc. these is
-        // for demo
         responseProducts.add(new OrderProduct(product.getProductId(), 0, BigDecimal.ZERO));
       }
-    });
+    }
+    ;
     if (savableProducts.isEmpty()) {
       return new OrderResponse(null, responseProducts);
     }

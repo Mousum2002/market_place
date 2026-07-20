@@ -12,6 +12,6 @@ public class GrpcClientConfig {
 
   @Bean
   CustomerServiceBlockingStub customerServiceBlockingStub(GrpcChannelFactory channels) {
-    return CustomerServiceGrpc.newBlockingStub(channels.createChannel("customer"));
+    return CustomerServiceGrpc.newBlockingStub(channels.createChannel("static://localhost:9090"));
   }
 }

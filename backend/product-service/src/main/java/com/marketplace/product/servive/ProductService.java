@@ -1,6 +1,9 @@
 package com.marketplace.product.servive;
 
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.cache.annotation.Cacheable;
@@ -31,6 +34,7 @@ public class ProductService {
     return mapper.productToResponse(prod);
   }
 
+  @Cacheable(value = "product-by-id", key = "#id")
   public ProductResponse findById(String id) {
     Product prod = repo.findById(id)
         .orElseThrow(() -> new ProductNotFoundException("Product not found with id: " + id));
@@ -45,5 +49,15 @@ public class ProductService {
   @CacheEvict(value = "products", allEntries = true)
   public void deleteById(String id) {
     repo.deleteById(id);
+  }
+
+  public Map<String, BigDecimal> getPricesByIds(List<String> ids) {
+    Map<String, BigDecimal> prices = new HashMap<>();
+
+    for (String id : ids) {
+      prices.put(id, findById(id).price());
+    }
+
+    return prices;
   }
 }

@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option java_multiple_files = true;
+option java_package = "com.marketplace.proto.product";
+option java_outer_classname = "ProductProto";
+
+package product;
+
+message ProductPriceRequest {
+  repeated string product_ids = 1;
+}
+
+message ProductPriceItem {
+  string product_id = 1;
+  double price = 2;
+}
+
+message ProductPriceResponse {
+  repeated ProductPriceItem items = 1;
+}
+
+service ProductService {
+  rpc GetPrices(ProductPriceRequest) returns (ProductPriceResponse);
+}

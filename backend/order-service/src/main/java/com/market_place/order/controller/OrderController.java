@@ -17,17 +17,23 @@ import com.market_place.order.dto.OrderResponse;
 import com.market_place.order.service.OrderService;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 
 @RestController
 @RequestMapping("/api/order")
 @RequiredArgsConstructor
+@Slf4j
 public class OrderController {
   private final OrderService service;
 
   @PostMapping
-  public ResponseEntity<UUID> placeOrder(@RequestHeader("X-Customer-Id") UUID customerID,
+  public ResponseEntity<OrderResponse> placeOrder(@RequestHeader("X-Customer-Id") UUID customerID,
       @RequestBody OrderRequest request) {
-    return ResponseEntity.status(HttpStatus.CREATED).body(service.placeOrder(customerID, request).id());
+    System.out.println(request);
+
+    request.products().forEach(x -> log.info(x.getProductId().toString()));
+    return ResponseEntity.status(HttpStatus.CREATED).body(service.placeOrder(customerID, request));
+
   }
 
   @GetMapping("/my-orders")

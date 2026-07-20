@@ -8,7 +8,6 @@ import org.springframework.cloud.gateway.server.mvc.handler.HandlerFunctions;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.web.servlet.function.RequestPredicates;
@@ -34,12 +33,21 @@ public class Routes {
   }
 
   @Bean
-  public RouterFunction<ServerResponse> orderServiceRoute() {
-    return GatewayRouterFunctions.route("order_service")
-        .route(RequestPredicates.path("/api/order/**"), HandlerFunctions.http())
-        .before(addUserIdHeaderForMyOrders())
-        .before(BeforeFilterFunctions.uri("http://localhost:8081")).build();
+  public RouterFunction<ServerResponse> orderGetRoute() {
+    return GatewayRouterFunctions.route("order_my_orders")
+        .route(RequestPredicates.GET("/api/order/my-orders"), HandlerFunctions.http())
+        .before(addUserIdHeader())
+        .before(BeforeFilterFunctions.uri("http://localhost:8081"))
+        .build();
+  }
 
+  @Bean
+  public RouterFunction<ServerResponse> orderPostRoute() {
+    return GatewayRouterFunctions.route("order_place")
+        .route(RequestPredicates.POST("/api/order"), HandlerFunctions.http())
+        .before(addUserIdHeader())
+        .before(BeforeFilterFunctions.uri("http://localhost:8081"))
+        .build();
   }
 
   @Bean
@@ -49,16 +57,8 @@ public class Routes {
         .before(BeforeFilterFunctions.uri("http://localhost:8282")).build();
   }
 
-  private Function<ServerRequest, ServerRequest> addUserIdHeaderForMyOrders() {
+  private Function<ServerRequest, ServerRequest> addUserIdHeader() {
     return request -> {
-      boolean isMyOrders = "/api/order/my-orders".equals(request.path());
-      boolean isPlaceOrder = "/api/order".equals(request.path())
-          && request.method() == HttpMethod.POST;
-
-      if (!isMyOrders && !isPlaceOrder) {
-        return request;
-      }
-
       String authHeader = request.headers().firstHeader(HttpHeaders.AUTHORIZATION);
 
       if (authHeader == null || !authHeader.startsWith("Bearer ")) {
@@ -66,18 +66,18 @@ public class Routes {
       }
 
       String token = authHeader.substring(7);
-
       Jwt jwt = jwtDecoder.decode(token);
-
       String userId = jwt.getClaimAsString("userId");
 
       if (userId == null || userId.isBlank()) {
         return request;
       }
 
-      log.info("userIdGetOrder: {}", userId);
-      return ServerRequest.from(request).header("X-Customer-Id", userId).build();
+      log.info("Forwarding X-Customer-Id: {}", userId);
 
+      return ServerRequest.from(request)
+          .header("X-Customer-Id", userId)
+          .build();
     };
   }
 }
