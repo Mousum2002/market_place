@@ -7,6 +7,6 @@ public record CustomerCreatedLogEvent(UUID eventId, Instant occurredAt) implemen
 
   @Override
   public String eventType() {
-    return "PRODUCT_CREATED";
+    return "CUSTOMER_CREATED";
   }
 }

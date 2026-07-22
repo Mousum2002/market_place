@@ -7,6 +7,6 @@ public record OrderCreateEvent(UUID eventId, Instant occurredAt) implements LogE
 
   @Override
   public String eventType() {
-    return "PRUDUCT_CREATED";
+    return "ORDER_PLACED";
   }
 }

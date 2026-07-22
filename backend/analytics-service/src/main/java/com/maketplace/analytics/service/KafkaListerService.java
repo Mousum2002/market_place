@@ -20,18 +20,18 @@ public class KafkaListerService {
 
   @KafkaListener(topics = "customer-created")
   public void onCustomerCreated(CustomerCreatedLogEvent event) {
+    log.info("New customer with id {}", event.eventId().toString());
     helper(event);
   }
 
   @KafkaListener(topics = "order-created")
   public void onOrderCreated(OrderCreateEvent event) {
+    log.info("New order with id {}", event.eventId().toString());
     helper(event);
   }
 
   private void helper(LogEvent event) {
     buffer.queue().offer(event);
-
     flushService.requestFlushIfLarge();
-
   }
 }

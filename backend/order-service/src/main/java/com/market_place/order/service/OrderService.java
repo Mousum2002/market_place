@@ -1,6 +1,7 @@
 package com.market_place.order.service;
 
 import java.math.BigDecimal;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -8,8 +9,12 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.json.JsonParseException;
+import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import com.market_place.order.dto.OrderPlacedLogEvent;
 import com.market_place.order.dto.OrderRequest;
 import com.market_place.order.dto.OrderResponse;
 import com.market_place.order.mapper.OrderMapper;
@@ -27,6 +32,7 @@ import com.marketplace.proto.product.ProductServiceGrpc.ProductServiceBlockingSt
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -36,8 +42,13 @@ public class OrderService {
   private final OrderMapper mapper;
   private final OrderRepo repo;
   private final InventoryServiceBlockingStub inventoryStub;
+  private final KafkaTemplate<String, byte[]> kafkaTemplate;
 
+  private final ObjectMapper objectMapper;
   private final ProductServiceBlockingStub productStub;
+
+  @Value("${app.kafka.topics.order-created}")
+  String customerCreatedTopic;
 
   public OrderResponse placeOrder(UUID customerID, OrderRequest request) {
 
@@ -89,6 +100,10 @@ public class OrderService {
 
     OrderResponse response = mapper.orderToResponse(repo.save(order));
     log.info("Order placed with id {}", response.id());
+    for (OrderProduct product : savableProducts) {
+      kafkaTemplate.send(customerCreatedTopic, product.getProductId().toString(),
+          toJsonBytes(new OrderPlacedLogEvent(product.getProductId(), Instant.now())));
+    }
     return response;
   }
 
@@ -97,4 +112,13 @@ public class OrderService {
     return repo.findByCustomerId(customerID).orElse(Collections.emptyList()).stream().map(mapper::orderToResponse)
         .toList();
   }
+
+  private byte[] toJsonBytes(OrderPlacedLogEvent event) {
+    try {
+      return objectMapper.writeValueAsBytes(event);
+    } catch (JsonParseException e) {
+      throw new IllegalStateException("Failed to serialize CustomerCreatedLogEvent", e);
+    }
+  }
+
 }
