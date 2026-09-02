@@ -6,6 +6,7 @@ option java_outer_classname = "CustomerAuthProto";
 
 service CustomerService {
   rpc FindCustomerByUsername (CustomerByUsernameRequest) returns (CustomerAuthResponse);
+  rpc FindCustomerById (CustomerByIdRequest) returns (CustomerContactResponse);
   rpc CreateCustomer (CreateCustomerRequest) returns (CreateCustomerResponse);
 }
 
@@ -13,11 +14,22 @@ message CustomerByUsernameRequest {
   string username = 1;
 }
 
+message CustomerByIdRequest {
+  string customerId = 1;
+}
+
 message CustomerAuthResponse {
   bool exists = 1;
   string userId = 2;
   string username = 3;
   string passwordHash = 4;
+}
+
+message CustomerContactResponse {
+  bool exists = 1;
+  string userId = 2;
+  string username = 3;
+  string email = 4;
 }
 
 message CreateCustomerRequest {

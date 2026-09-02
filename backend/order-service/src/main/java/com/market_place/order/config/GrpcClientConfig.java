@@ -6,6 +6,8 @@ import org.springframework.grpc.client.GrpcChannelFactory;
 
 import com.market_place.proto.inventory.InventoryServiceGrpc;
 import com.market_place.proto.inventory.InventoryServiceGrpc.InventoryServiceBlockingStub;
+import com.marketplace.proto.customer.CustomerServiceGrpc;
+import com.marketplace.proto.customer.CustomerServiceGrpc.CustomerServiceBlockingStub;
 import com.marketplace.proto.product.ProductServiceGrpc;
 import com.marketplace.proto.product.ProductServiceGrpc.ProductServiceBlockingStub;
 
@@ -20,5 +22,10 @@ public class GrpcClientConfig {
   @Bean
   public ProductServiceBlockingStub productServiceBlockingStub(GrpcChannelFactory channelFactory) {
     return ProductServiceGrpc.newBlockingStub(channelFactory.createChannel("static://localhost:9092"));
+  }
+
+  @Bean
+  public CustomerServiceBlockingStub customerServiceBlockingStub(GrpcChannelFactory channelFactory) {
+    return CustomerServiceGrpc.newBlockingStub(channelFactory.createChannel("static://localhost:9090"));
   }
 }
