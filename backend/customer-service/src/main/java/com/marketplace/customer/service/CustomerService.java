@@ -1,12 +1,15 @@
 package com.marketplace.customer.service;
 
 import java.time.Instant;
+import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.json.JsonParseException;
 import org.springframework.kafka.core.KafkaTemplate;
 import org.springframework.stereotype.Service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.marketplace.customer.dto.CustomerContactDto;
 import com.marketplace.customer.dto.CustomerCreatedLogEvent;
 import com.marketplace.customer.dto.CustomerRequest;
 import com.marketplace.customer.dto.CustomerResponse;
@@ -16,7 +19,6 @@ import com.marketplace.customer.repo.CustomerRepo;
 import com.marketplace.proto.customer.CreateCustomerResponse;
 
 import lombok.RequiredArgsConstructor;
-import tools.jackson.databind.ObjectMapper;
 
 @Service
 @RequiredArgsConstructor
@@ -43,10 +45,15 @@ public class CustomerService {
         .orElse(new CustomerResponse(false, null, "", ""));
   }
 
+  public CustomerContactDto findContactById(UUID customerId) {
+    return repo.findById(customerId).map(mapper::toCustomerContactDto)
+        .orElse(new CustomerContactDto(false, null, "", ""));
+  }
+
   private byte[] toJsonBytes(CustomerCreatedLogEvent event) {
     try {
       return objectMapper.writeValueAsBytes(event);
-    } catch (JsonParseException e) {
+    } catch (JsonProcessingException e) {
       throw new IllegalStateException("Failed to serialize CustomerCreatedLogEvent", e);
     }
   }
